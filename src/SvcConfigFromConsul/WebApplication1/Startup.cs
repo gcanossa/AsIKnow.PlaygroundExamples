@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Consul;
@@ -64,7 +65,7 @@ namespace WebApplication1
         {
             services.Configure<ConsulConfig>(Configuration.GetSection("ConsulConfig"));
             services.AddSingleton(Configuration);
-            
+
             services.AddSingleton<IConsulClient, ConsulClient>(p => new ConsulClient(consulConfig =>
             {
                 string address = Configuration["ConsulConfig:Address"];
@@ -78,18 +79,35 @@ namespace WebApplication1
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
+        public void Configure(IApplicationBuilder app, IServiceProvider provider, IHostingEnvironment env, IApplicationLifetime appLifetime)
         {
-            appLifetime.ApplicationStopping.Register(_cancellationTokenSource.Cancel);
-
-            if (env.IsDevelopment())
+            IOptions<ApplicationOptions> options = provider.GetRequiredService<IOptions<ApplicationOptions>>();
+            if (options.Value.Name == null)
             {
-                app.UseDeveloperExceptionPage();
+                IConsulClient client = provider.GetRequiredService<IConsulClient>();
+
+                client.KV.Put(new KVPair($"{env.ApplicationName}.{env.EnvironmentName}")
+                {
+                    Value = Encoding.UTF8.GetBytes(
+@"{
+  'Application':{
+    'Name':'Mario',
+    'Age':11
+  }
+}")
+                }).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                appLifetime.ApplicationStopping.Register(_cancellationTokenSource.Cancel);
+
+                if (env.IsDevelopment())
+                {
+                    app.UseDeveloperExceptionPage();
+                }
+
+                app.UseMvc();
+
+                app.RegisterWithConsul(appLifetime, "http://webapplication1");
             }
-
-            app.UseMvc();
-
-            app.RegisterWithConsul(appLifetime, "http://webapplication1");
         }
     }
 }

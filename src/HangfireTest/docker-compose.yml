@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  hangfiretest:
+    image: hangfiretest
+    build:
+      context: .
+      dockerfile: HangfireTest/Dockerfile
+  database:
+    image: postgres
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_PASSWORD: root
