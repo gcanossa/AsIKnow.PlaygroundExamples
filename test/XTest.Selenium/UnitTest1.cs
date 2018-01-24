@@ -77,7 +77,7 @@ namespace XTest.Selenium
                 actions.MoveToElement(link).Click().Perform();
 
                 //naviga alla destinazione del link, non ho capito perché non lo fa già al click
-                driver.Navigate().GoToUrl(link.GetAttribute("href"));
+                //driver.Navigate().GoToUrl(link.GetAttribute("href"));
 
                 //aspetta fino a che non cambia l'indirizzo
                 wait.Until(d => d.Url == "http://www.aliaslab.net/index.php/our-team-business/");
