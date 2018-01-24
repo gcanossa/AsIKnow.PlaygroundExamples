@@ -36,7 +36,13 @@ namespace WebApplication1
                 Name = consulConfig.Value.ServiceName,
                 Address = $"{uri.Scheme}://{uri.Host}",
                 Port = uri.Port,
-                Tags = new[] { "Test", "Prova" }
+                Tags = new[] { "Test", "Prova" },
+                Check = new AgentServiceCheck()
+                {
+                    DeregisterCriticalServiceAfter = TimeSpan.FromSeconds(10),
+                    TCP = $"{uri.Host}:{uri.Port}",
+                    Interval = TimeSpan.FromSeconds(5)
+                }
             };
 
             logger.LogInformation("Registering with Consul");

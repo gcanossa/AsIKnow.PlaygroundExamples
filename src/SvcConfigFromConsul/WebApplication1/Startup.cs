@@ -20,15 +20,6 @@ namespace WebApplication1
     //http://cecilphillip.com/using-consul-for-service-discovery-with-asp-net-core/
     public class Startup
     {
-        /*
-{
-  "Application":{
-    "Name":"Luca",
-    "Age":18
-  }
-}
-             */
-
         public Startup(IHostingEnvironment env)
         {
             _cancellationTokenSource = new CancellationTokenSource();
@@ -79,35 +70,18 @@ namespace WebApplication1
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IServiceProvider provider, IHostingEnvironment env, IApplicationLifetime appLifetime)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
         {
-            IOptions<ApplicationOptions> options = provider.GetRequiredService<IOptions<ApplicationOptions>>();
-            if (options.Value.Name == null)
+            appLifetime.ApplicationStopping.Register(_cancellationTokenSource.Cancel);
+
+            if (env.IsDevelopment())
             {
-                IConsulClient client = provider.GetRequiredService<IConsulClient>();
-
-                client.KV.Put(new KVPair($"{env.ApplicationName}.{env.EnvironmentName}")
-                {
-                    Value = Encoding.UTF8.GetBytes(
-@"{
-  'Application':{
-    'Name':'Mario',
-    'Age':11
-  }
-}")
-                }).ConfigureAwait(false).GetAwaiter().GetResult();
-
-                appLifetime.ApplicationStopping.Register(_cancellationTokenSource.Cancel);
-
-                if (env.IsDevelopment())
-                {
-                    app.UseDeveloperExceptionPage();
-                }
-
-                app.UseMvc();
-
-                app.RegisterWithConsul(appLifetime, "http://webapplication1");
+                app.UseDeveloperExceptionPage();
             }
+
+            app.UseMvc();
+
+            app.RegisterWithConsul(appLifetime, "http://webapplication1");
         }
     }
 }

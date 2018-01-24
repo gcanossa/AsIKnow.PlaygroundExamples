@@ -6,7 +6,7 @@ FROM microsoft/aspnetcore-build:2.0 AS build
 WORKDIR /src
 COPY *.sln ./
 COPY WebApplication1/WebApplication1.csproj WebApplication1/
-RUN dotnet restore
+RUN apt-get update && apt-get install -y procps && dotnet restore
 COPY . .
 WORKDIR /src/WebApplication1
 RUN dotnet build -c Release -o /app

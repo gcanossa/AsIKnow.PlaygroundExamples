@@ -19,11 +19,12 @@ namespace WebApplication2.Controllers
 
             var consulClient = new ConsulClient(c => c.Address = new Uri("http://consul:8500"));
             var services = consulClient.Agent.Services().Result.Response;
+            var checks = consulClient.Agent.Checks().Result.Response;
             foreach (var service in services)
             {
                 var isTestApi = service.Value.Tags.Any(t => t == "Test") ||
                                   service.Value.Tags.Any(t => t == "Prova");
-                if (isTestApi)
+                if (isTestApi && !checks.Any(p=>p.Value.ServiceID == service.Value.ID && p.Value.Status != HealthStatus.Passing))
                 {
                     var serviceUri = new Uri($"{service.Value.Address}:{service.Value.Port}");
                     _serverUrls.Add(serviceUri);
