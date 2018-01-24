@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  firefox:
+    image: selenium/node-firefox:3.8.1-erbium
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      SCREEN_WIDTH: 1920
+      SCREEN_HEIGHT: 1080
+      HUB_HOST: hub
+
+  chrome:
+    image: selenium/node-chrome:3.8.1-erbium
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      SCREEN_WIDTH: 1920
+      SCREEN_HEIGHT: 1080
+      HUB_HOST: hub
+
+  hub:
+    image: selenium/hub:3.8.1-erbium
+    ports:
+      - "4444:4444"
