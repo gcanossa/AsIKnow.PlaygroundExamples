@@ -13,6 +13,9 @@ services:
     build:
       context: .
       dockerfile: WebApplication1/Dockerfile
+    environment:
+      - Application__Host=webapplication1
+      - Application__Id=web1_0
 
   webapplication2:
     image: webapplication2

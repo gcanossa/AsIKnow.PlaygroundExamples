@@ -42,6 +42,22 @@ namespace WebApplication1
                             exceptionContext.Ignore = false;
                         };
                     })
+                .AddConsul(
+                    $"{env.ApplicationName}.{env.EnvironmentName}.{Environment.GetEnvironmentVariable("Application__Id")}",
+                    _cancellationTokenSource.Token,
+                    options =>
+                    {
+                        options.ConsulConfigurationOptions = cco =>
+                        {
+                            cco.Address = new Uri("http://consul:8500");
+                        };
+                        options.Optional = true;
+                        options.ReloadOnChange = true;
+                        options.OnLoadException = (exceptionContext) =>
+                        {
+                            exceptionContext.Ignore = false;
+                        };
+                    })
                 .AddEnvironmentVariables()
                 .Build();
 
