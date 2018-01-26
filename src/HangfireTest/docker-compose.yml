@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: HangfireTest/Dockerfile
   database:
-    image: postgres
+    image: postgres 
     ports:
       - 5433:5432
     environment:
